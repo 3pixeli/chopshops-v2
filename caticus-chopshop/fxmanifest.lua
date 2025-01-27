@@ -12,6 +12,7 @@ dependencies {
 
 shared_scripts {
     'shared/sh_shared.lua',
+    'config.lua'
 }
 
 client_scripts {

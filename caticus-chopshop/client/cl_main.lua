@@ -11,6 +11,8 @@ local chopVehicle = 0
 local dropOffZone = nil
 local dropOffBlip = nil
 
+local CurrentCops = 0
+
 local vehMods = { -- You can add more here
     0, -- Spoiler
     1, -- Front Bumper
@@ -275,16 +277,24 @@ local EnableUpgrades = function(vehicle)
 end
 
 local ReceiveMission = function()
-    SetTimeout(math.random(2500, 4000), function()
-        local charinfo = QBCore.Functions.GetPlayerData().charinfo
-        local model = Shared.Vehicles[math.random(#Shared.Vehicles)]
-        QBCore.Functions.TriggerCallback('caticus-chopshop:server:GetPlate', function(result)
-            local plate = result
-            -- Directly accept the mission
-            TriggerEvent('caticus-chopshop:client:AcceptMission', { model = model, plate = plate })
+    if CurrentCops >= Config.PoliceOnDutyRequired then
+        SetTimeout(math.random(2500, 4000), function()
+            local charinfo = QBCore.Functions.GetPlayerData().charinfo
+            local model = Shared.Vehicles[math.random(#Shared.Vehicles)]
+            QBCore.Functions.TriggerCallback('caticus-chopshop:server:GetPlate', function(result)
+                local plate = result
+                -- Directly accept the mission
+                TriggerEvent('caticus-chopshop:client:AcceptMission', { model = model, plate = plate })
+            end)
         end)
-    end)
+    else
+        TriggerEvent('QBCore:Notify', 'Not enough Police', 'error')
+    end
 end
+
+RegisterNetEvent('police:SetCopCount', function(amount)
+    CurrentCops = amount
+end)
 
 RegisterNetEvent('caticus-chopshop:client:AcceptMission', function(data)
     local model = data.model
